@@ -7,3 +7,14 @@ def test_extract_hash_block():
 
     t = """# \n# Another\n# One.\n# """
     assert parse.extract_hash_block(t) == "Another\nOne."
+
+
+def test_extract_string_block():
+    t = '''"""This\nis\na\ntest"""'''
+    assert parse.extract_string_block(t) == "This\nis\na\ntest"
+
+    t = '''from badstuff import first"""Here"""'''
+    assert parse.extract_string_block(t) == ""
+
+    t = '''"""\n This\n is\n a\n test\n """'''
+    assert parse.extract_string_block(t) == "\n This\n is\n a\n test\n "

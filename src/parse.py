@@ -3,10 +3,12 @@
 import os
 
 
-def extract_hash_block(content):
+def extract_hash_block(content: str) -> str:
     content = content.lstrip().replace("\t", "    ")
     valid_top_lines = list()
-    min_init_spaces, init_spaces = len(content[1:]) - len(content[1:].lstrip(" ")), len(content[1:]) - len(content[1:].lstrip(" "))
+    min_init_spaces, init_spaces = len(content[1:]) - len(content[1:].lstrip(" ")), len(
+        content[1:]
+    ) - len(content[1:].lstrip(" "))
     for line in content.split("\n"):
         if line[:1] == "#":
             current_spaces = len(line[1:]) - len(line[1:].lstrip(" "))
@@ -14,11 +16,16 @@ def extract_hash_block(content):
             valid_top_lines.append(line)
         else:
             break
-    valid_top_lines = map(lambda s: s[min_init_spaces + 1:], valid_top_lines)
-    valid_top_lines = "\n".join(valid_top_lines)
-    return " " * (init_spaces - min_init_spaces) + valid_top_lines.strip()
+    valid_text = "\n".join(
+        map(lambda s: s[min_init_spaces + 1 :], valid_top_lines)
+    ).strip()
+    return " " * (init_spaces - min_init_spaces) + valid_text
 
 
-def extract_from_file(file_path):
-    with open(file_path, "r") as f:
-        pass
+def extract_string_block(content: str) -> str:
+    content = content.lstrip()
+    init_string_block = content.split('"""')[1]
+    if content.split('"""')[0] == "":
+        return init_string_block
+    else:
+        return ""
