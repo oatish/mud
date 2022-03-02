@@ -18,3 +18,15 @@ def test_extract_string_block():
 
     t = '''"""\n This\n is\n a\n test\n """'''
     assert parse.extract_string_block(t) == "\n This\n is\n a\n test\n "
+
+
+def test_extract_imports():
+    t = """import dog\nimport log\nfrom sink import water"""
+    assert parse.extract_imports(t) == {"dog": ["*"], "log": ["*"], "sink": ["water"]}
+
+    t = """from home import food\nfrom dog import cat\nimport stuff"""
+    assert parse.extract_imports(t) == {
+        "home": ["food"],
+        "dog": ["cat"],
+        "stuff": ["*"],
+    }
