@@ -125,6 +125,12 @@ def infer_local_modules(
 ) -> List[str]:
     """
     Function to find all internal modules that can be called.
+
+    Keyword arguments:
+        glob_pattern -- Starting folder or glob pattern
+        recursive -- True to glob all files recursively
+        excluded -- Tuple containing files to be explicitly excluded
+        included -- Tuple containing all files to be included.  Overrides glob_pattern if non-empty
     """
     modules: List[str] = list()
     if included:
@@ -151,7 +157,11 @@ def extract_module_info(
     module_path: str, local_modules: Union[List[str], None] = None
 ) -> ModuleInfo:
     """
-    Function to create a ModuleInfo dataclass for a given module path
+    Function to create a ModuleInfo dataclass for a given module path.
+
+    Keyword arguments:
+        module_path -- File path to the module info is to be extracted from
+        local_modules -- List of all local modules to be included.  If None, includes only module_path
     """
     if local_modules is None:
         local_modules = [module_path]
@@ -185,6 +195,15 @@ def infer_modules_info(
     excluded: tuple = (),
     included: tuple = (),
 ) -> Dict[str, ModuleInfo]:
+    """
+    Function to infer all local modules and extract model info for all of them.
+
+    Keyword arguments:
+        glob_pattern -- Starting folder or glob pattern
+        recursive -- True to glob all files recursively
+        excluded -- Tuple containing files to be explicitly excluded
+        included -- Tuple containing all files to be included.  Overrides glob_pattern if non-empty
+    """
     local_modules = infer_local_modules(glob_pattern, recursive, excluded, included)
     return {
         infer_module_name(module): extract_module_info(module, local_modules)
