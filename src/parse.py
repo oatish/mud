@@ -1,8 +1,6 @@
-# Functions to parse comment blocks
-
 import os
 import re
-from typing import List, Tuple, Dict, Iterator, Union
+from typing import List, Tuple, Dict, Union
 from pathlib import Path
 from glob import glob
 from dataclasses import dataclass, field
@@ -10,6 +8,17 @@ from dataclasses import dataclass, field
 
 @dataclass
 class ModuleInfo:
+    """
+    Dataclass to hold all needed information about a local module
+
+    Keyword arguments:
+        name -- Name of module
+        internal_mods -- Dictionary mapping module name to methods used for local modules
+        external_mods -- Dictionary mapping module name to methods used for external modules
+        description -- Description of module
+        path -- Module path
+    """
+
     name: str
     internal_mods: Dict[str, List[str]] = field(default_factory=dict)
     external_mods: Dict[str, List[str]] = field(default_factory=dict)
@@ -26,7 +35,7 @@ def extract_hash_block(content: str) -> str:
     """
     if content:
         content = content.lstrip().replace("\t", "    ")
-        valid_top_lines = list()
+        valid_top_lines = []
         min_init_spaces, init_spaces = len(content[1:]) - len(
             content[1:].lstrip(" ")
         ), len(content[1:]) - len(content[1:].lstrip(" "))
@@ -42,8 +51,7 @@ def extract_hash_block(content: str) -> str:
             map(lambda s: s[min_init_spaces + 1 :], valid_top_lines)
         ).strip()
         return " " * (init_spaces - min_init_spaces) + valid_text
-    else:
-        return ""
+    return ""
 
 
 def extract_string_block(content: str) -> str:
@@ -60,19 +68,18 @@ def extract_string_block(content: str) -> str:
             init_string_block = separated[1]
             if separated[0] == "":
                 return init_string_block
-            else:
-                return ""
-        else:
             return ""
-    else:
         return ""
+    return ""
 
 
 def extract_comment_block(content: str) -> str:
+    """
+    Utility function to parse any comment black regardless of type
+    """
     if content.strip()[0] == "#":
         return extract_hash_block(content)
-    else:
-        return extract_string_block(content)
+    return extract_string_block(content)
 
 
 def extract_base_module(key: str, base_modules: bool) -> str:
@@ -85,8 +92,7 @@ def extract_base_module(key: str, base_modules: bool) -> str:
     """
     if base_modules:
         return key.split(".")[0]
-    else:
-        return key
+    return key
 
 
 def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[str]]:
@@ -97,7 +103,7 @@ def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[s
         content -- Text to extract imported module names from
         base_modules -- True to extract just base module names, False otherwise
     """
-    import_map: Dict[str, List[str]] = dict()
+    import_map: Dict[str, List[str]] = {}
     for line in content.split("\n"):
         relative_imports = re.findall(r"from \.+ import ([a-zA-Z0-9_.\-]+)\s*", line)
         conditional_import_re = re.findall(
@@ -120,8 +126,8 @@ def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[s
 def infer_local_modules(
     glob_pattern: str = ".",
     recursive: bool = True,
-    excluded: tuple = (),
-    included: tuple = (),
+    excluded: Tuple = (),
+    included: Tuple = (),
 ) -> List[str]:
     """
     Function to find all internal modules that can be called.
@@ -132,7 +138,7 @@ def infer_local_modules(
         excluded -- Tuple containing files to be explicitly excluded
         included -- Tuple containing all files to be included.  Overrides glob_pattern if non-empty
     """
-    modules: List[str] = list()
+    modules: List[str] = []
     if included:
         file_iter = included
     elif recursive:
@@ -141,7 +147,7 @@ def infer_local_modules(
         file_iter = tuple(glob(glob_pattern + "*.py"))
     for module in file_iter:
         if os.path.basename(module) not in excluded:
-            if not re.findall("__([a-zA-Z0-9_.\-]+)__.py", os.path.basename(module)):
+            if not re.findall(r"__([a-zA-Z0-9_.\-]+)__.py", os.path.basename(module)):
                 modules.append(module)
     return modules
 
@@ -185,15 +191,14 @@ def extract_module_info(
             module_description,
             module_path,
         )
-    else:
-        return ModuleInfo(module_name, path=module_path)
+    return ModuleInfo(module_name, path=module_path)
 
 
 def infer_modules_info(
     glob_pattern: str = ".",
     recursive: bool = True,
-    excluded: tuple = (),
-    included: tuple = (),
+    excluded: Tuple = (),
+    included: Tuple = (),
 ) -> Dict[str, ModuleInfo]:
     """
     Function to infer all local modules and extract model info for all of them.

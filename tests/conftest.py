@@ -1,6 +1,6 @@
-import pytest
 import os
 import sys
+import pytest
 
 
 def pytest_sessionstart(session):
