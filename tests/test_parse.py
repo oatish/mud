@@ -50,6 +50,13 @@ def test_extract_imports():
     assert parse.extract_imports(t) == {"pet": ["poodle"]}
     assert parse.extract_imports(t, False) == {"pet.dog": ["poodle"]}
 
+    t = """from home import food\nfrom dog import bark, sniff, run\nimport stuff"""
+    assert parse.extract_imports(t) == {
+        "home": ["food"],
+        "dog": ["bark", "sniff", "run"],
+        "stuff": ["*"],
+    }
+
 
 def test_infer_local_modules():
     output = parse.infer_local_modules(

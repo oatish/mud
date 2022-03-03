@@ -1,9 +1,9 @@
+from dataclasses import dataclass, field
+from glob import glob
 import os
+from pathlib import Path
 import re
 from typing import List, Tuple, Dict, Union
-from pathlib import Path
-from glob import glob
-from dataclasses import dataclass, field
 
 
 @dataclass
@@ -107,7 +107,7 @@ def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[s
     for line in content.split("\n"):
         relative_imports = re.findall(r"from \.+ import ([a-zA-Z0-9_.\-]+)\s*", line)
         conditional_import_re = re.findall(
-            r"from \.*([a-zA-Z0-9_.\-]+) import ([a-zA-Z0-9_.\-]+)\s*", line
+            r"from \.*([a-zA-Z0-9_.\-]+) import ([a-zA-Z0-9_.\-,\s]+)", line
         )
         full_imports_re = re.findall(r"import ([a-zA-Z0-9_.\-]+)\s*", line)
         if conditional_import_re:
@@ -115,7 +115,7 @@ def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[s
             if "*" not in current_val:
                 import_map[
                     extract_base_module(conditional_import_re[0][0], base_modules)
-                ] = current_val + [conditional_import_re[0][1]]
+                ] = current_val + conditional_import_re[0][1].split(", ")
         elif full_imports_re:
             import_map[extract_base_module(full_imports_re[0], base_modules)] = ["*"]
         elif relative_imports:
