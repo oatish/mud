@@ -2,7 +2,19 @@
 
 import os
 import re
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Iterator, Union
+from pathlib import Path
+from glob import glob
+from dataclasses import dataclass, field
+
+
+@dataclass
+class ModuleInfo:
+    name: str
+    internal_mods: Dict[str, List[str]] = field(default_factory=dict)
+    external_mods: Dict[str, List[str]] = field(default_factory=dict)
+    description: str = ""
+    path: str = ""
 
 
 def extract_hash_block(content: str) -> str:
@@ -12,22 +24,26 @@ def extract_hash_block(content: str) -> str:
     Keyword arguments:
         content -- Text to extract top comment block from
     """
-    content = content.lstrip().replace("\t", "    ")
-    valid_top_lines = list()
-    min_init_spaces, init_spaces = len(content[1:]) - len(content[1:].lstrip(" ")), len(
-        content[1:]
-    ) - len(content[1:].lstrip(" "))
-    for line in content.split("\n"):
-        if line[:1] == "#":
-            current_spaces = len(line[1:]) - len(line[1:].lstrip(" "))
-            min_init_spaces = min(min_init_spaces, current_spaces)
-            valid_top_lines.append(line)
-        else:
-            break
-    valid_text = "\n".join(
-        map(lambda s: s[min_init_spaces + 1 :], valid_top_lines)
-    ).strip()
-    return " " * (init_spaces - min_init_spaces) + valid_text
+    if content:
+        content = content.lstrip().replace("\t", "    ")
+        valid_top_lines = list()
+        min_init_spaces, init_spaces = len(content[1:]) - len(
+            content[1:].lstrip(" ")
+        ), len(content[1:]) - len(content[1:].lstrip(" "))
+        for line in content.split("\n"):
+            if len(line) > 1:
+                if line[:1] == "#":
+                    current_spaces = len(line[1:]) - len(line[1:].lstrip(" "))
+                    min_init_spaces = min(min_init_spaces, current_spaces)
+                    valid_top_lines.append(line)
+                else:
+                    break
+        valid_text = "\n".join(
+            map(lambda s: s[min_init_spaces + 1 :], valid_top_lines)
+        ).strip()
+        return " " * (init_spaces - min_init_spaces) + valid_text
+    else:
+        return ""
 
 
 def extract_string_block(content: str) -> str:
@@ -37,25 +53,140 @@ def extract_string_block(content: str) -> str:
     Keyword arguments:
         content -- Text to extract top comment block from
     """
-    content = content.lstrip()
-    init_string_block = content.split('"""')[1]
-    if content.split('"""')[0] == "":
-        return init_string_block
+    if content:
+        content = content.lstrip()
+        separated = content.split('"""')
+        if len(separated) > 1:
+            init_string_block = separated[1]
+            if separated[0] == "":
+                return init_string_block
+            else:
+                return ""
+        else:
+            return ""
     else:
         return ""
 
 
-def extract_imports(content: str) -> Dict[str, List[str]]:
-    full_imports: List[str] = list()
-    conditional_imports: List[Tuple[str, str]] = list()
+def extract_comment_block(content: str) -> str:
+    if content.strip()[0] == "#":
+        return extract_hash_block(content)
+    else:
+        return extract_string_block(content)
+
+
+def extract_base_module(key: str, base_modules: bool) -> str:
+    """
+    Utility function to extract base module from module import
+
+    Keyword arguments:
+        key -- Module name to parse
+        base_modules -- True if parsing for base module, False otherwise
+    """
+    if base_modules:
+        return key.split(".")[0]
+    else:
+        return key
+
+
+def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[str]]:
+    """
+    Function to extract module names from import statements in a text
+
+    Keyword arguments:
+        content -- Text to extract imported module names from
+        base_modules -- True to extract just base module names, False otherwise
+    """
     import_map: Dict[str, List[str]] = dict()
     for line in content.split("\n"):
-        full_imports = full_imports + re.findall(r"^import ([a-zA-Z0-9_.\-]+)\s*", line)
-        conditional_imports = conditional_imports + re.findall(
-            r"^from ([a-zA-Z0-9_.\-]+) import ([a-zA-Z0-9_.\-]+)\s*", line
+        relative_imports = re.findall(r"from \.+ import ([a-zA-Z0-9_.\-]+)\s*", line)
+        conditional_import_re = re.findall(
+            r"from \.*([a-zA-Z0-9_.\-]+) import ([a-zA-Z0-9_.\-]+)\s*", line
         )
-    for key, val in conditional_imports:
-        import_map[key] = import_map.get(key, []) + [val]
-    for full_import in full_imports:
-        import_map[full_import] = ["*"]
+        full_imports_re = re.findall(r"import ([a-zA-Z0-9_.\-]+)\s*", line)
+        if conditional_import_re:
+            current_val = import_map.get(conditional_import_re[0][0], [])
+            if "*" not in current_val:
+                import_map[
+                    extract_base_module(conditional_import_re[0][0], base_modules)
+                ] = current_val + [conditional_import_re[0][1]]
+        elif full_imports_re:
+            import_map[extract_base_module(full_imports_re[0], base_modules)] = ["*"]
+        elif relative_imports:
+            import_map[extract_base_module(relative_imports[0], base_modules)] = ["*"]
     return import_map
+
+
+def infer_local_modules(
+    glob_pattern: str = ".",
+    recursive: bool = True,
+    excluded: tuple = (),
+    included: tuple = (),
+) -> List[str]:
+    """
+    Function to find all internal modules that can be called.
+    """
+    modules: List[str] = list()
+    if included:
+        file_iter = included
+    elif recursive:
+        file_iter = tuple(Path(glob_pattern).rglob("*.py"))
+    else:
+        file_iter = tuple(glob(glob_pattern + "*.py"))
+    for module in file_iter:
+        if os.path.basename(module) not in excluded:
+            if not re.findall("__([a-zA-Z0-9_.\-]+)__.py", os.path.basename(module)):
+                modules.append(module)
+    return modules
+
+
+def infer_module_name(module_path: str) -> str:
+    """
+    Utility function to convert a path into the importable name of the module.
+    """
+    return os.path.basename(module_path).split(".")[0]
+
+
+def extract_module_info(
+    module_path: str, local_modules: Union[List[str], None] = None
+) -> ModuleInfo:
+    """
+    Function to create a ModuleInfo dataclass for a given module path
+    """
+    if local_modules is None:
+        local_modules = [module_path]
+    local_module_names = [infer_module_name(f) for f in local_modules]
+    module_name = infer_module_name(module_path)
+    with open(module_path, "r") as f:
+        content = f.read()
+    if content:
+        module_description = extract_comment_block(content)
+        modules_imported = extract_imports(content)
+        local_modules_imported = {
+            k: v for k, v in modules_imported.items() if k in local_module_names
+        }
+        external_modules_imported = {
+            k: v for k, v in modules_imported.items() if k not in local_module_names
+        }
+        return ModuleInfo(
+            module_name,
+            local_modules_imported,
+            external_modules_imported,
+            module_description,
+            module_path,
+        )
+    else:
+        return ModuleInfo(module_name, path=module_path)
+
+
+def infer_modules_info(
+    glob_pattern: str = ".",
+    recursive: bool = True,
+    excluded: tuple = (),
+    included: tuple = (),
+) -> Dict[str, ModuleInfo]:
+    local_modules = infer_local_modules(glob_pattern, recursive, excluded, included)
+    return {
+        infer_module_name(module): extract_module_info(module, local_modules)
+        for module in local_modules
+    }
