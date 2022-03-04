@@ -1,7 +1,10 @@
 name: GitHub Validate Code
 on:
   pull_request:
-    - opened
+    types:
+      - opened
+    branches:
+      - 'main'
 jobs:
   Validate-Code:
     runs-on: ubuntu-latest
