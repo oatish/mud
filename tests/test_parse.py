@@ -23,7 +23,7 @@ def test_extract_string_block():
     assert parse.extract_string_block(t) == ""
 
     t = '''"""\n This\n is\n a\n test\n """'''
-    assert parse.extract_string_block(t) == "\n This\n is\n a\n test\n "
+    assert parse.extract_string_block(t) == "This\n is\n a\n test"
 
     t = """no comment\at all."""
     assert parse.extract_string_block(t) == ""
