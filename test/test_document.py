@@ -1,5 +1,5 @@
-import document
-from parse import ModuleInfo, extract_module_info
+from mud import document
+from mud.parse import ModuleInfo, extract_module_info
 
 
 def test_document_module_md():

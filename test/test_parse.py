@@ -1,4 +1,4 @@
-import parse
+from mud import parse
 
 
 def test_extract_hash_block():
@@ -91,7 +91,7 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={},
         external_mods={"pets": ["dog"], "toys": ["*"]},
         description="Test file\nDescription of test file",
-        path="tests/mud/extra.pyfake",
+        path="test/mud/extra.pyfake",
     )
     assert parse.extract_module_info(module_extra) == expected
 
@@ -100,7 +100,7 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={"toys": ["*"]},
         external_mods={"pets": ["dog"]},
         description="Test file\nDescription of test file",
-        path="tests/mud/extra.pyfake",
+        path="test/mud/extra.pyfake",
     )
     assert parse.extract_module_info(module_extra, ["./mud/toys.py"]) == expected
 
@@ -109,6 +109,6 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={},
         external_mods={"cats": ["*"]},
         description="Simple test module.",
-        path="tests/mud/simple.pyfake",
+        path="test/mud/simple.pyfake",
     )
     assert parse.extract_module_info(module_simple) == expected

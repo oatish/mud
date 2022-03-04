@@ -6,19 +6,17 @@ mud is simple package to parse Python package module structure.
 ## Document
 > Module to convert extracted info into formatted text
 #### Internal Modules
- * parse
+ * mud
 #### External Modules
  * typing
 ------
 ------
 ## Mud
 #### Internal Modules
- * parse
- * document
+ * mud
 #### External Modules
  * argparse
  * os
- * pathlib
 ------
 ------
 ## Parse

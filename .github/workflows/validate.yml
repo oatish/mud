@@ -7,7 +7,7 @@ on:
       - 'main'
     paths:
       - "mud/**"
-      - "tests/**"
+      - "test/**"
 jobs:
   Validate-Code:
     runs-on: ubuntu-latest
