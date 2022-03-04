@@ -8,10 +8,13 @@ on:
     paths:
       - "mud/**"
       - "test/**"
+      - "requirements.txt"
 jobs:
   Validate-Code:
     runs-on: ubuntu-latest
     steps:
+      - run: pip3 install -r requirements.txt
+      - run: python setup.py install
       - run: pip3 install pylint
       - run: pylint mud --disable=C0301,C0114,C0116,W1514,C0103,E0401,W0613,E0402 --fail-under=10
       - run: pip3 install mypy
