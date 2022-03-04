@@ -14,4 +14,4 @@ coverage run -m pytest
 coverage report --fail-under=75
 
 # Type check
-mypy src
+mypy src --ignore-missing-imports
