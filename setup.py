@@ -11,12 +11,12 @@ setup(
     url='https://github.com/shalst/mudhttp://pypi.python.org/pypi/PackageName/',
     license='LICENSE',
     description='A Python package to document the modules and file structure of other Python packages',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     entry_points={
         'console_scripts': [
             'mud = mud.mud:main',
         ],
-    }
+    },
     tests_require=['pytest'],
     install_requires=[
         "pylint",
