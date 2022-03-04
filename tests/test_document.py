@@ -26,7 +26,7 @@ def test_document_all_md(module_extra, module_simple):
     extra = extract_module_info(module_extra)
     simple = extract_module_info(module_simple)
     modules = {"extra": extra, "simple": simple}
-    expected = """# Test Library\nThis is just a test.\n\n## Extra\n> Test file\nDescription of test file\n#### External Modules\n * pets\n * toys\n\n## Simple\n> Simple test module.\n#### External Modules\n * cats\n"""
+    expected = """# Test Library\nThis is just a test.\n\n------\n------\n## Extra\n> Test file\nDescription of test file\n#### External Modules\n * pets\n * toys\n------\n------\n## Simple\n> Simple test module.\n#### External Modules\n * cats\n------"""
     actual = document.document_all_md(
         modules, "Test Library", description="This is just a test."
     )

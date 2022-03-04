@@ -28,12 +28,14 @@ def document_all_md(
     excluded: Tuple = tuple(),
     description=str,
 ) -> str:
-    combined_doc: List[str] = [f"# {title}"] if title else []
+    combined_doc: List[str] = [f"# {title}"] if title else [""]
     if description:
-        combined_doc.append(description)
-        combined_doc.append("")
+        combined_doc.append(description + "\n")
+        combined_doc.append("------")
     for module_name, module in modules.items():
         if module_name not in excluded:
+            print(f"[info] documenting module {module_name}")
+            combined_doc.append("------")
             combined_doc.append(document_module_md(module))
-            combined_doc.append("")
+            combined_doc.append("------")
     return "\n".join(combined_doc)

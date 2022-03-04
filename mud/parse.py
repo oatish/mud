@@ -151,6 +151,7 @@ def infer_local_modules(
         file_iter = tuple(glob(glob_pattern + "*.py"))
     for module in file_iter:
         if os.path.basename(module) not in excluded:
+            print(f"[info] inferring module {module}")
             if not re.findall(r"__([a-zA-Z0-9_.\-]+)__.py", os.path.basename(module)):
                 modules.append(module)
     return modules
