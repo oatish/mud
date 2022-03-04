@@ -1,4 +1,4 @@
-import parse
+from mud import parse
 
 
 def test_extract_hash_block():
@@ -60,28 +60,28 @@ def test_extract_imports():
 
 def test_infer_local_modules():
     output = parse.infer_local_modules(
-        included=("src/parse.py", "src/dog.py", "src/pet/cat.py")
+        included=("mud/parse.py", "mud/dog.py", "mud/pet/cat.py")
     )
     assert output == [
-        "src/parse.py",
-        "src/dog.py",
-        "src/pet/cat.py",
+        "mud/parse.py",
+        "mud/dog.py",
+        "mud/pet/cat.py",
     ]
 
     output = parse.infer_local_modules(
-        included=("src/parse.py", "src/dog.py", "src/pet/cat.py"), excluded=("parse.py")
+        included=("mud/parse.py", "mud/dog.py", "mud/pet/cat.py"), excluded=("parse.py")
     )
-    assert output == ["src/dog.py", "src/pet/cat.py"]
+    assert output == ["mud/dog.py", "mud/pet/cat.py"]
 
 
 def test_infer_module_name():
     t = "dog.py"
     assert parse.infer_module_name(t) == "dog"
 
-    t = "src/dog.py"
+    t = "mud/dog.py"
     assert parse.infer_module_name(t) == "dog"
 
-    t = "./src/pets/dog.py"
+    t = "./mud/pets/dog.py"
     assert parse.infer_module_name(t) == "dog"
 
 
@@ -91,7 +91,7 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={},
         external_mods={"pets": ["dog"], "toys": ["*"]},
         description="Test file\nDescription of test file",
-        path="tests/src/extra.pyfake",
+        path="test/mud/extra.pyfake",
     )
     assert parse.extract_module_info(module_extra) == expected
 
@@ -100,15 +100,15 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={"toys": ["*"]},
         external_mods={"pets": ["dog"]},
         description="Test file\nDescription of test file",
-        path="tests/src/extra.pyfake",
+        path="test/mud/extra.pyfake",
     )
-    assert parse.extract_module_info(module_extra, ["./src/toys.py"]) == expected
+    assert parse.extract_module_info(module_extra, ["./mud/toys.py"]) == expected
 
     expected = parse.ModuleInfo(
         name="simple",
         internal_mods={},
         external_mods={"cats": ["*"]},
         description="Simple test module.",
-        path="tests/src/simple.pyfake",
+        path="test/mud/simple.pyfake",
     )
     assert parse.extract_module_info(module_simple) == expected

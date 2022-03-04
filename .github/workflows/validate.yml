@@ -6,16 +6,16 @@ on:
     branches:
       - 'main'
     paths:
-      - "src/**"
-      - "tests/**"
+      - "mud/**"
+      - "test/**"
 jobs:
   Validate-Code:
     runs-on: ubuntu-latest
     steps:
       - run: pip3 install pylint
-      - run: pylint src --disable=C0301,C0114,C0116,W1514,C0103,E0401,W0613,E0402 --fail-under=10
+      - run: pylint mud --disable=C0301,C0114,C0116,W1514,C0103,E0401,W0613,E0402 --fail-under=10
       - run: pip3 install mypy
-      - run: mypy src --ignore-missing-imports
+      - run: mypy mud --ignore-missing-imports
       - run: pip3 install pytest
       - run: coverage run -m pytest
       - run: coverage report --fail-under=75

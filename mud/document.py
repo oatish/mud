@@ -3,10 +3,10 @@ Module to convert extracted info into formatted text
 """
 
 from typing import List, Tuple, Dict
-from mud import parse
+from mud.parse import ModuleInfo
 
 
-def document_module_md(module_info: parse.ModuleInfo) -> str:
+def document_module_md(module_info: ModuleInfo) -> str:
     doc_lines: List = []
     doc_lines.append("## " + module_info.name.capitalize())
     if module_info.description:
@@ -23,7 +23,7 @@ def document_module_md(module_info: parse.ModuleInfo) -> str:
 
 
 def document_all_md(
-    modules: Dict[str, parse.ModuleInfo],
+    modules: Dict[str, ModuleInfo],
     title: str = "",
     excluded: Tuple = tuple(),
     description=str,

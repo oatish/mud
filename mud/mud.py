@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 import os
-from mud import parse
-from mud import document
+from mud.parse import infer_modules_info
+from mud.document import document_all_md
 
 
 def main():
@@ -46,8 +46,8 @@ def main():
     if args.readme:
         with open("README.md", "r") as f:
             description_section = f.read()
-    inferred_modules = parse.infer_modules_info(args.paths)
-    documentation = document.document_all_md(
+    inferred_modules = infer_modules_info(args.paths)
+    documentation = document_all_md(
         inferred_modules, args.name, description=description_section
     )
     print(documentation)
