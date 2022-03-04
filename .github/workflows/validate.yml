@@ -1,0 +1,9 @@
+name: GitHub Validate Code
+on:
+  pull_request:
+    - opened
+jobs:
+  Validate-Code:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sh check.sh
