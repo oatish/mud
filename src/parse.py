@@ -193,7 +193,7 @@ def extract_module_info(
             local_modules_imported,
             external_modules_imported,
             module_description,
-            module_path,
+            os.path.relpath(module_path),
         )
     return ModuleInfo(module_name, path=module_path)
 

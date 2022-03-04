@@ -131,3 +131,4 @@ dmypy.json
 # others
 working.ipynb
 push.sh
+.vscode

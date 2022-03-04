@@ -8,5 +8,10 @@ def pytest_sessionstart(session):
 
 
 @pytest.fixture()
-def test_module():
-    return os.path.join(os.path.dirname(__file__), "src/test.py")
+def module_extra():
+    return os.path.join(os.path.dirname(__file__), "src/extra.py")
+
+
+@pytest.fixture()
+def module_simple():
+    return os.path.join(os.path.dirname(__file__), "src/simple.py")
