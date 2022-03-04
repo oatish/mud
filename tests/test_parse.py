@@ -91,7 +91,7 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={},
         external_mods={"pets": ["dog"], "toys": ["*"]},
         description="Test file\nDescription of test file",
-        path="tests/src/extra.py",
+        path="tests/src/extra.pyfake",
     )
     assert parse.extract_module_info(module_extra) == expected
 
@@ -100,7 +100,7 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={"toys": ["*"]},
         external_mods={"pets": ["dog"]},
         description="Test file\nDescription of test file",
-        path="tests/src/extra.py",
+        path="tests/src/extra.pyfake",
     )
     assert parse.extract_module_info(module_extra, ["./src/toys.py"]) == expected
 
@@ -109,6 +109,6 @@ def test_extract_module_info(module_extra, module_simple):
         internal_mods={},
         external_mods={"cats": ["*"]},
         description="Simple test module.",
-        path="tests/src/simple.py",
+        path="tests/src/simple.pyfake",
     )
     assert parse.extract_module_info(module_simple) == expected
