@@ -23,7 +23,7 @@ def test_extract_string_block():
     assert parse.extract_string_block(t) == ""
 
     t = '''"""\n This\n is\n a\n test\n """'''
-    assert parse.extract_string_block(t) == "\n This\n is\n a\n test\n "
+    assert parse.extract_string_block(t) == "This\n is\n a\n test"
 
     t = """no comment\at all."""
     assert parse.extract_string_block(t) == ""
@@ -85,21 +85,30 @@ def test_infer_module_name():
     assert parse.infer_module_name(t) == "dog"
 
 
-def test_extract_module_info(test_module):
+def test_extract_module_info(module_extra, module_simple):
     expected = parse.ModuleInfo(
-        name="test",
+        name="extra",
         internal_mods={},
         external_mods={"pets": ["dog"], "toys": ["*"]},
         description="Test file\nDescription of test file",
-        path="/mnt/c/Users/steph/Projects/mud/tests/src/test.py",
+        path="tests/src/extra.py",
     )
-    assert parse.extract_module_info(test_module) == expected
+    assert parse.extract_module_info(module_extra) == expected
 
     expected = parse.ModuleInfo(
-        name="test",
+        name="extra",
         internal_mods={"toys": ["*"]},
         external_mods={"pets": ["dog"]},
         description="Test file\nDescription of test file",
-        path="/mnt/c/Users/steph/Projects/mud/tests/src/test.py",
+        path="tests/src/extra.py",
     )
-    assert parse.extract_module_info(test_module, ["./src/toys.py"]) == expected
+    assert parse.extract_module_info(module_extra, ["./src/toys.py"]) == expected
+
+    expected = parse.ModuleInfo(
+        name="simple",
+        internal_mods={},
+        external_mods={"cats": ["*"]},
+        description="Simple test module.",
+        path="tests/src/simple.py",
+    )
+    assert parse.extract_module_info(module_simple) == expected

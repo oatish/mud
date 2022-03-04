@@ -1,3 +1,7 @@
+"""
+Module to extract information about local modules
+"""
+
 from dataclasses import dataclass, field
 from glob import glob
 import os
@@ -67,7 +71,7 @@ def extract_string_block(content: str) -> str:
         if len(separated) > 1:
             init_string_block = separated[1]
             if separated[0] == "":
-                return init_string_block
+                return init_string_block.strip()
             return ""
         return ""
     return ""
@@ -189,7 +193,7 @@ def extract_module_info(
             local_modules_imported,
             external_modules_imported,
             module_description,
-            module_path,
+            os.path.relpath(module_path),
         )
     return ModuleInfo(module_name, path=module_path)
 
