@@ -132,3 +132,5 @@ dmypy.json
 working.ipynb
 push.sh
 .vscode
+*.swp
+*/**/*.swp

@@ -52,7 +52,7 @@ def extract_hash_block(content: str) -> str:
                 else:
                     break
         valid_text = "\n".join(
-            map(lambda s: s[min_init_spaces + 1 :], valid_top_lines)
+            map(lambda s: s[min_init_spaces + 1:], valid_top_lines)
         ).strip()
         return " " * (init_spaces - min_init_spaces) + valid_text
     return ""
@@ -154,6 +154,22 @@ def infer_local_code_files(
             print(f"[info] inferring module {module}")
             if not re.findall(r"__([a-zA-Z0-9_.\-]+)__.py", os.path.basename(module)):
                 modules.append(module)
+    return modules
+
+
+def infer_local_modules(
+    base_dir: str = ".",
+) -> List[str]:
+    """
+    Function to find all internal modules that can be called.
+
+    Keyword arguments:
+        base_dir -- Base directory to start walk looking for Python modules
+    """
+    modules: List[str] = []
+    for p, d, f in os.walk(base_dir):
+        if "__init__.py" in f:
+            modules.append(os.path.basename(p))
     return modules
 
 
