@@ -127,7 +127,7 @@ def extract_imports(content: str, base_modules: bool = True) -> Dict[str, List[s
     return import_map
 
 
-def infer_local_modules(
+def infer_local_code_files(
     glob_pattern: str = ".",
     recursive: bool = True,
     excluded: Tuple = (),
@@ -214,7 +214,7 @@ def infer_modules_info(
         excluded -- Tuple containing files to be explicitly excluded
         included -- Tuple containing all files to be included.  Overrides glob_pattern if non-empty
     """
-    local_modules = infer_local_modules(glob_pattern, recursive, excluded, included)
+    local_modules = infer_local_code_files(glob_pattern, recursive, excluded, included)
     return {
         infer_module_name(module): extract_module_info(module, local_modules)
         for module in local_modules

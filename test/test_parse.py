@@ -58,8 +58,8 @@ def test_extract_imports():
     }
 
 
-def test_infer_local_modules():
-    output = parse.infer_local_modules(
+def test_infer_local_code_files():
+    output = parse.infer_local_code_files(
         included=("mud/parse.py", "mud/dog.py", "mud/pet/cat.py")
     )
     assert output == [
@@ -68,7 +68,7 @@ def test_infer_local_modules():
         "mud/pet/cat.py",
     ]
 
-    output = parse.infer_local_modules(
+    output = parse.infer_local_code_files(
         included=("mud/parse.py", "mud/dog.py", "mud/pet/cat.py"), excluded=("parse.py")
     )
     assert output == ["mud/dog.py", "mud/pet/cat.py"]
